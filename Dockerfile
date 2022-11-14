@@ -1,7 +1,6 @@
-FROM python:3.9.6
-EXPOSE  8000
+FROM python:3.10
 WORKDIR /app
-COPY ./requirements.txt requirements.txt
+COPY requirements.txt .
 RUN pip install --no-cache-dir --upgrade -r requirements.txt
 COPY . .
-CMD python app.py
+CMD ["/bin/bash", "docker-entrypoint.sh"]

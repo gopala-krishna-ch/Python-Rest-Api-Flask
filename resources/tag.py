@@ -15,14 +15,11 @@ class TagsInStore(MethodView):
     def get(self, store_id):
         store = StoreModel.query.get_or_404(store_id)
 
-        return store.tags.all()  # lazy="dynamic" means 'tags' is a query
+        return store.tags.all()
 
     @blp.arguments(TagSchema)
     @blp.response(201, TagSchema)
     def post(self, tag_data, store_id):
-        if TagModel.query.filter(TagModel.store_id == store_id).first():
-            abort(400, message="A tag with that name already exists in that store.")
-
         tag = TagModel(**tag_data, store_id=store_id)
 
         try:
@@ -31,7 +28,7 @@ class TagsInStore(MethodView):
         except SQLAlchemyError as e:
             abort(
                 500,
-                message=str(e),
+                message=str(e)
             )
 
         return tag
@@ -51,9 +48,9 @@ class LinkTagsToItem(MethodView):
             db.session.commit()
         except SQLAlchemyError:
             abort(500, message="An error occurred while inserting the tag.")
-
+        
         return tag
-
+    
     @blp.response(200, TagAndItemSchema)
     def delete(self, item_id, tag_id):
         item = ItemModel.query.get_or_404(item_id)
@@ -76,16 +73,16 @@ class Tag(MethodView):
     def get(self, tag_id):
         tag = TagModel.query.get_or_404(tag_id)
         return tag
-
+    
     @blp.response(
         202,
         description="Deletes a tag if no item is tagged with it.",
-        example={"message": "Tag deleted."},
+        example={"message": "Tag deleted."}
     )
     @blp.alt_response(404, description="Tag not found.")
     @blp.alt_response(
         400,
-        description="Returned if the tag is assigned to one or more items. In this case, the tag is not deleted.",
+        description="Returned if the tag is assigned to one or more items. In this case, the tag is not deleted."
     )
     def delete(self, tag_id):
         tag = TagModel.query.get_or_404(tag_id)
